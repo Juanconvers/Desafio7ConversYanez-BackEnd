@@ -1,14 +1,14 @@
-import dotenv from 'dotenv'
+
 import express from 'express'
 import mongoose from 'mongoose'
 import session from 'express-session'
-
 import MongoStore from 'connect-mongo'
 import passport from 'passport'
 import cookieParser from 'cookie-parser'
 import messageModel from './models/messages.js'
 import indexRouter from './routes/indexRouter.js'
 import initializePassport from './config/passport/passport.js'
+import varenv from './config/passport/dotenv.js'
 import { Server } from 'socket.io'
 import { engine } from 'express-handlebars'
 import { __dirname } from './path.js'
@@ -20,7 +20,6 @@ import { __dirname } from './path.js'
 const app = express()
 const PORT = 11000
 
-dotenv.config()
 
 
 //Server
@@ -31,7 +30,7 @@ const server = app.listen(PORT, () => {
 const io = new Server(server)
 
 //Connection DB
-mongoose.connect(process.env.MONGO_BD_URL)
+mongoose.connect(varenv.mongo_url)
     .then(() => console.log("DB is connected"))
     .catch(e => console.log(e))
 
@@ -41,16 +40,16 @@ mongoose.connect(process.env.MONGO_BD_URL)
 app.use(express.json()) 
 
 app.use(session({
-    secret: process.env.SESSION_SECRET,
+    secret: varenv.session_secret,
     resave: true,
     store: MongoStore.create({
-        mongoUrl: process.env.MONGO_BD_URL,
+        mongoUrl: varenv.mongo_url,
         ttl: 60 * 60
     }),
     saveUninitialized: true
 }))
 
-app.use(cookieParser(process.env.COOKIE_SECRET))
+app.use(cookieParser(varenv.cookie_secret))
 app.engine('handlebars', engine())
 app.set('view engine', 'handlebars')
 app.set('views', __dirname + '/views')
@@ -63,11 +62,6 @@ app.use(passport.session())
 
 app.use('/', indexRouter)
 
-app.use(session({
-    secret: "claveIndescifrable",
-    resave: true,
-    saveUninitialized: true
-}))
 // Cookies Routes
 
 app.get('/setCookie', (req, res) => {
