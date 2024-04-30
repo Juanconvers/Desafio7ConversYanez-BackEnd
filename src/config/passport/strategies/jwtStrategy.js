@@ -14,7 +14,7 @@ const jwtOptions = {
     jwtFromRequest: ExtractJwt.fromExtractors([cookieExtractor]),
     //jwtFromRequest: ExtractJwt.fromAuthHeaderAsBearerToken() esperar el token de JWT desde la peticion
     //jwtFromRequest: ExtractJwt.fromExtractors([cookieExtractor]) consultando desde las cookies
-    secretOrKey: "coderhouse"
+    secretOrKey: process.env.JWT_SECRET
 }
 
 export const strategyJWT = new JwtStrategy(jwtOptions, async (payload, done) => {

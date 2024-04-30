@@ -1,3 +1,4 @@
+import dotenv from 'dotenv'
 import express from 'express'
 import mongoose from 'mongoose'
 import session from 'express-session'
@@ -19,6 +20,9 @@ import { __dirname } from './path.js'
 const app = express()
 const PORT = 11000
 
+dotenv.config()
+
+
 //Server
 const server = app.listen(PORT, () => {
     console.log(`Server on port ${PORT}`)
@@ -27,7 +31,7 @@ const server = app.listen(PORT, () => {
 const io = new Server(server)
 
 //Connection DB
-mongoose.connect("mongodb+srv://juanconverslegal:Malkut27.7@cluster0.j6k2srb.mongodb.net/?retryWrites=true&w=majority&appName=Cluster0")
+mongoose.connect(process.env.MONGO_BD_URL)
     .then(() => console.log("DB is connected"))
     .catch(e => console.log(e))
 
@@ -37,16 +41,16 @@ mongoose.connect("mongodb+srv://juanconverslegal:Malkut27.7@cluster0.j6k2srb.mon
 app.use(express.json()) 
 
 app.use(session({
-    secret: "coderSecret",
+    secret: process.env.SESSION_SECRET,
     resave: true,
     store: MongoStore.create({
-        mongoUrl: "mongodb+srv://juanconverslegal:Malkut27.7@cluster0.j6k2srb.mongodb.net/?retryWrites=true&w=majority&appName=Cluster0",
+        mongoUrl: process.env.MONGO_BD_URL,
         ttl: 60 * 60
     }),
     saveUninitialized: true
 }))
 
-app.use(cookieParser("MiClaveSecreta"))
+app.use(cookieParser(process.env.COOKIE_SECRET))
 app.engine('handlebars', engine())
 app.set('view engine', 'handlebars')
 app.set('views', __dirname + '/views')
